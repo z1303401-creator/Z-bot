@@ -1,0 +1,82 @@
+import discord
+from discord.ext import commands
+from datetime import datetime
+
+# Bot banate hain
+bot = commands.Bot(command_prefix='/', intents=discord.Intents.default())
+
+# Jab bot start ho
+@bot.event
+async def on_ready():
+    print(f'{bot.user} - Zbot ready hai! 🤖')
+
+# Function: Kya bot active hai check karna
+def is_bot_active():
+    current_hour = datetime.now().hour
+    # 10 PM (22) se 5 AM (5) tak active
+    if current_hour >= 22 or current_hour < 5:
+        return True
+    return False
+
+# Function: Raat ya Subah ka greeting
+def get_greeting():
+    current_hour = datetime.now().hour
+    
+    # Raat 10 PM se Midnight
+    if current_hour >= 22:
+        return "🌙 Sleep time, have a good night! Sweet dreams 😴✨"
+    
+    # Subah 12 AM se 5 AM
+    elif current_hour < 5:
+        return "🌅 Good morning! Have a blessed day ahead! ☀️🌟 Acha din hona aapka!"
+    
+    return "I'm little busy, I will text you later 😊"
+
+# Auto greeting - jab koi message bheje
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+    
+    # Check: Kya bot active time hai?
+    if is_bot_active():
+        # Check: Greeting words
+        if message.content.lower() in ['hi', 'hello', 'hey', 'namaste', 'assalam', 'salam', 'yo', 'sup']:
+            greeting = get_greeting()
+            await message.reply(greeting)
+    
+    await bot.process_commands(message)
+
+# Anti-Stickers command
+@bot.command()
+async def anti_stickers(ctx):
+    await ctx.send("🚫 Stickers are NOT allowed in this group!")
+
+# No-Links command
+@bot.command()
+async def no_links(ctx):
+    await ctx.send("🔗 Links are NOT allowed in this group!")
+
+# Help command
+@bot.command()
+async def help(ctx):
+    await ctx.send("""
+╔════════════════════════════╗
+║   📋 **ZBOT COMMANDS**     ║
+╚════════════════════════════╝
+
+⏰ **Active Time:** 10 PM - 5 AM
+📅 **Days:** 7 Days (Poora Hafta)
+
+**Commands:**
+/anti-stickers - Stickers block karega
+/no-links - Links block karega
+/help - Ye message dikhayega
+
+**Auto Features:**
+🌙 Raat 10 PM: "Sleep time, have a good night!"
+🌅 Subah 5 AM: "Good morning! Acha din hona!"
+    """)
+
+# Bot ko run karo (TOKEN yahan dalenge)
+bot.run('YOUR_TOKEN_HERE')
